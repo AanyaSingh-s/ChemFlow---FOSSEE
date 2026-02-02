@@ -74,7 +74,7 @@ class ChartsWidget(QWidget):
                 border-radius: 6px;
                 padding: 8px 12px;
                 color: white;
-                font-size: 12px;
+                font-size: 10px;
             }
             QComboBox:hover {
                 border: 1px solid #3b82f6;

@@ -2,14 +2,22 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { authAPI } from "@/services/api";
-import Iridescence from "@/components/Iridescence";
+// import Iridescence from "@/components/Iridescence";
 import { Button } from "@/components/ui/button";
-import { FlaskConical, ArrowLeft } from "lucide-react";
+import { FlaskConical, ArrowLeft, Sun, Moon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useTheme } from "@/components/theme-provider";
 
 const Login = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { theme, setTheme } = useTheme();
+
+  const handleToggleTheme = () => {
+    const next = theme === "dark" ? "light" : "dark";
+    setTheme(next);
+    toast({ title: `Theme: ${next[0].toUpperCase() + next.slice(1)}` });
+  };
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -41,20 +49,25 @@ const Login = () => {
   };
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center p-4">
-      <div className="fixed inset-0 -z-10 opacity-90">
+    <div className="relative min-h-screen flex items-center justify-center p-4 bg-background text-foreground">
+      {/* <div className="fixed inset-0 -z-10 opacity-90">
         <Iridescence color={[0.35, 0.65, 0.95]} speed={0.4} amplitude={0.15} />
-      </div>
+      </div> */}
 
       <div className="w-full max-w-md">
         <div className="mb-6">
-          <Link 
-            to="/" 
-            className="inline-flex items-center gap-2 text-white/70 hover:text-white transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back to home
-          </Link>
+          <div className="flex items-center justify-between">
+            <Link 
+              to="/" 
+              className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back to home
+            </Link>
+            <Button variant="ghost" onClick={handleToggleTheme} title={`Toggle theme (current: ${theme})`} aria-label="Toggle theme" className="text-muted-foreground hover:text-foreground">
+              {theme === "dark" ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
+            </Button>
+          </div>
         </div>
 
         <div className="bg-background/90 backdrop-blur-xl rounded-2xl shadow-2xl p-8 border border-border/50">
@@ -70,8 +83,10 @@ const Login = () => {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-2">Username</label>
+              <label htmlFor="username" className="block text-sm font-medium mb-2">Username</label>
               <input
+                id="username"
+                name="username"
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
@@ -82,8 +97,10 @@ const Login = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">Password</label>
+              <label htmlFor="password" className="block text-sm font-medium mb-2">Password</label>
               <input
+                id="password"
+                name="password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -96,7 +113,7 @@ const Login = () => {
             <Button
               type="submit"
               disabled={loading}
-              className="w-full"
+              className="w-full bg-primary text-primary-foreground hover:brightness-95"
             >
               {loading ? "Logging in..." : "Log In"}
             </Button>

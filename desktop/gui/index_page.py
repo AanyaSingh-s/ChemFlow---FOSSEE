@@ -45,7 +45,7 @@ class IndexPage(AnimatedBackground):
         brand = QLabel(
             "<span style='font-size:10px; letter-spacing:2px; "
             "color:#bfdbfe;'>CHEMFLOW ANALYTICS</span><br>"
-            "<span style='font-size:20px; font-weight:800; color:white;'>"
+            "<span style='font-size:15px; font-weight:800; color:white;'>"
             "Chemical Equipment Intelligence</span>"
         )
         nav.addWidget(brand)
@@ -60,6 +60,12 @@ class IndexPage(AnimatedBackground):
         self.btn_get_started.setCursor(Qt.PointingHandCursor)
         self.btn_get_started.setStyleSheet(self._nav_button(primary=True))
         nav.addWidget(self.btn_get_started)
+        
+        # Theme toggle (emoji icon) - calls main_window.toggle_theme
+        self.btn_toggle_theme = QPushButton("🌙")
+        self.btn_toggle_theme.setCursor(Qt.PointingHandCursor)
+        self.btn_toggle_theme.setStyleSheet("QPushButton{ background: transparent; border: none; font-size:16px; } QPushButton:hover{opacity:0.8}")
+        nav.addWidget(self.btn_toggle_theme)
 
         container_layout.addLayout(nav)
 
@@ -84,21 +90,21 @@ class IndexPage(AnimatedBackground):
         """)
         left.addWidget(pill, 0, Qt.AlignLeft)
 
-        heading = QLabel(
+        self.heading = QLabel(
             "Upload, analyze, and\nvisualize chemical\nequipment datasets in\nseconds."
         )
-        heading.setStyleSheet("color:white; font-size:28px; font-weight:800;")
-        heading.setWordWrap(True)
-        left.addWidget(heading)
+        self.heading.setStyleSheet("color:white; font-size:28px; font-weight:800;")
+        self.heading.setWordWrap(True)
+        left.addWidget(self.heading)
 
-        subtitle = QLabel(
+        self.subtitle = QLabel(
             "Flow-rate trends, pressure deviations, temperature correlations, and more. "
             "Unlock insights from every CSV using interactive dashboards built for "
             "process engineers and researchers."
         )
-        subtitle.setWordWrap(True)
-        subtitle.setStyleSheet("color:#d1d5db; font-size:15px;")
-        left.addWidget(subtitle)
+        self.subtitle.setWordWrap(True)
+        self.subtitle.setStyleSheet("color:#d1d5db; font-size:15px;")
+        left.addWidget(self.subtitle)
 
         # Buttons
         ctas = QHBoxLayout()
@@ -172,6 +178,13 @@ class IndexPage(AnimatedBackground):
             self.btn_get_started.clicked.connect(self.main_window.show_login)
             self.btn_create_workspace.clicked.connect(self.main_window.show_login)
             self.btn_view_dashboard.clicked.connect(self.main_window.show_dashboard_page)
+            self.btn_toggle_theme.clicked.connect(self.main_window.toggle_theme)
+
+            # Apply current theme on init
+            try:
+                self.apply_theme(self.main_window.theme)
+            except Exception:
+                pass
 
     # ============================================================
     # STYLE HELPERS
@@ -184,7 +197,7 @@ class IndexPage(AnimatedBackground):
                     color:white;
                     padding:10px 22px;
                     border-radius:10px;
-                    font-size:15px;
+                    font-size:12px;
                     font-weight:600;
                 }
                 QPushButton:hover { background:#2563eb; }
@@ -195,12 +208,34 @@ class IndexPage(AnimatedBackground):
                 color:white;
                 padding:10px 22px;
                 border-radius:10px;
-                font-size:15px;
+                font-size:11px;
                 font-weight:600;
                 border:1px solid rgba(255,255,255,0.1);
             }
             QPushButton:hover { background:#334155; }
         """
+
+    def apply_theme(self, theme: str):
+        """Apply light or dark theme to desktop index page UI elements."""
+        if theme == 'light':
+            # Nav
+            self.btn_login.setStyleSheet("QPushButton{background: transparent; color: #0f172a; padding:8px 16px; border-radius:8px; border:1px solid rgba(15,23,42,0.06)}")
+            self.btn_get_started.setStyleSheet("QPushButton{background:#3b82f6; color:white; padding:8px 16px; border-radius:8px}")
+            self.btn_create_workspace.setStyleSheet("QPushButton{background:#3b82f6; color:white; border-radius:12px; padding:10px 18px}")
+            self.btn_view_dashboard.setStyleSheet("QPushButton{background: transparent; color:#0f172a; border:1px solid rgba(15,23,42,0.06); border-radius:12px; padding:10px 18px}")
+            self.btn_toggle_theme.setText('☀️')
+            # Heading/subtitle colors
+            self.heading.setStyleSheet("color:#0f172a; font-size:28px; font-weight:800;")
+            self.subtitle.setStyleSheet("color:#334155; font-size:15px;")
+        else:
+            # dark
+            self.btn_login.setStyleSheet(self._nav_button())
+            self.btn_get_started.setStyleSheet(self._nav_button(primary=True))
+            self.btn_create_workspace.setStyleSheet(self._cta_primary())
+            self.btn_view_dashboard.setStyleSheet(self._cta_secondary())
+            self.btn_toggle_theme.setText('🌙')
+            self.heading.setStyleSheet("color:white; font-size:28px; font-weight:800;")
+            self.subtitle.setStyleSheet("color:#d1d5db; font-size:15px;")
 
     def _cta_primary(self):
         return """
@@ -208,7 +243,7 @@ class IndexPage(AnimatedBackground):
                 background:#3b82f6;
                 color:white;
                 border-radius:12px;
-                font-size:15px;
+                font-size:11px;
                 font-weight:600;
             }
             QPushButton:hover { background:#2563eb; }
@@ -220,7 +255,7 @@ class IndexPage(AnimatedBackground):
                 background:#1e293b;
                 color:white;
                 border-radius:12px;
-                font-size:15px;
+                font-size:11px;
                 font-weight:600;
                 border:1px solid rgba(255,255,255,0.25);
             }

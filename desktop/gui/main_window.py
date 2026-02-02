@@ -72,6 +72,9 @@ class MainWindow(QMainWindow):
         self.stacked_widget = QStackedWidget()
         self.setCentralWidget(self.stacked_widget)
 
+        # Theme (desktop) - default dark
+        self.theme = 'dark'
+
         # Pages
         self.index_page = IndexPage(self)
         self.dashboard_page = self.create_dashboard_page()
@@ -135,24 +138,25 @@ class MainWindow(QMainWindow):
         content_layout.setContentsMargins(20, 15, 20, 15)
         content_layout.setSpacing(12)
 
-        # Header
+        # Header - matching website design
         header_frame = QFrame()
+        self.header_frame = header_frame
         header_frame.setStyleSheet("""
             QFrame {
-                background: rgba(15, 23, 42, 0.8);
-                border-radius: 10px;
-                border: 1px solid rgba(148, 163, 184, 0.2);
+                background: rgba(15, 23, 42, 0.6);
+                border-bottom: 1px solid #334155;
             }
         """)
         header_layout = QHBoxLayout(header_frame)
-        header_layout.setContentsMargins(20, 12, 20, 12)
+        header_layout.setContentsMargins(24, 12, 24, 12)
+        header_layout.setSpacing(16)
         
-        title_label = QLabel("ChemFlow Analytics")
+        title_label = QLabel("Dashboard")
         title_font = QFont()
-        title_font.setPointSize(16)
+        title_font.setPointSize(12)
         title_font.setBold(True)
         title_label.setFont(title_font)
-        title_label.setStyleSheet("color: white; background: transparent;")
+        title_label.setStyleSheet("color: #f1f5f9; background: transparent;")
         header_layout.addWidget(title_label)
 
         header_layout.addStretch()
@@ -160,28 +164,55 @@ class MainWindow(QMainWindow):
         self.user_label = QLabel("Not logged in")
         self.user_label.setStyleSheet("""
             color: #cbd5e1; 
-            font-size: 13px;
-            padding: 6px 12px;
-            background: rgba(30, 41, 59, 0.6);
+            font-size: 11px;
+            padding: 6px 10px;
+            background: transparent;
             border-radius: 6px;
         """)
         header_layout.addWidget(self.user_label)
+        
+        # Theme toggle button
+        self.theme_toggle_btn = QPushButton("🌙")
+        self.theme_toggle_btn.clicked.connect(self.toggle_theme)
+        self.theme_toggle_btn.setCursor(Qt.PointingHandCursor)
+        self.theme_toggle_btn.setMaximumWidth(40)
+        self.theme_toggle_btn.setMaximumHeight(40)
+        self.theme_toggle_btn.setStyleSheet("""
+            QPushButton {
+                background: transparent;
+                color: #cbd5e1;
+                border: 1px solid #334155;
+                border-radius: 6px;
+                padding: 6px;
+                font-size: 12px;
+                font-weight: 600;
+            }
+            QPushButton:hover {
+                background: rgba(59, 130, 246, 0.1);
+                border: 1px solid #3b82f6;
+                color: #f1f5f9;
+            }
+        """)
+        header_layout.addWidget(self.theme_toggle_btn)
 
         self.logout_btn = QPushButton("Logout")
         self.logout_btn.clicked.connect(self.logout)
         self.logout_btn.setVisible(False)
         self.logout_btn.setCursor(Qt.PointingHandCursor)
+        self.logout_btn.setMaximumWidth(80)
         self.logout_btn.setStyleSheet("""
             QPushButton {
                 background: #ef4444;
                 color: white;
                 border-radius: 6px;
                 padding: 6px 14px;
-                font-size: 13px;
+                font-size: 12px;
                 font-weight: 600;
                 border: none;
             }
-            QPushButton:hover { background: #dc2626; }
+            QPushButton:hover { 
+                background: #dc2626; 
+            }
         """)
         header_layout.addWidget(self.logout_btn)
 
@@ -191,28 +222,26 @@ class MainWindow(QMainWindow):
         controls_frame = QFrame()
         controls_frame.setStyleSheet("""
             QFrame {
-                background: rgba(15, 23, 42, 0.6);
-                border-radius: 8px;
-                border: 1px solid rgba(148, 163, 184, 0.15);
+                background: transparent;
             }
         """)
         upload_layout = QHBoxLayout(controls_frame)
-        upload_layout.setContentsMargins(16, 10, 16, 10)
+        upload_layout.setContentsMargins(0, 16, 0, 16)
         upload_layout.setSpacing(12)
 
-        self.upload_btn = QPushButton("📤 Upload CSV File")
-        self.upload_btn.setMinimumHeight(40)
-        self.upload_btn.setMinimumWidth(160)
+        self.upload_btn = QPushButton("📤 Upload CSV")
+        self.upload_btn.setMinimumHeight(36)
+        self.upload_btn.setMinimumWidth(120)
         self.upload_btn.setCursor(Qt.PointingHandCursor)
         self.upload_btn.clicked.connect(self.upload_file)
         self.upload_btn.setStyleSheet("""
             QPushButton {
                 background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
                     stop:0 #3b82f6, stop:1 #2563eb);
-                color: white;
-                border-radius: 8px;
-                padding: 8px 20px;
-                font-size: 13px;
+                color: #ffffff;
+                border-radius: 6px;
+                padding: 6px 12px;
+                font-size: 11px;
                 font-weight: 600;
                 border: none;
             }
@@ -220,12 +249,15 @@ class MainWindow(QMainWindow):
                 background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
                     stop:0 #2563eb, stop:1 #1d4ed8);
             }
+            QPushButton:pressed {
+                background: #1e40af;
+            }
         """)
         upload_layout.addWidget(self.upload_btn)
 
         self.generate_report_btn = QPushButton("📄 Generate Report")
-        self.generate_report_btn.setMinimumHeight(40)
-        self.generate_report_btn.setMinimumWidth(160)
+        self.generate_report_btn.setMinimumHeight(36)
+        self.generate_report_btn.setMinimumWidth(120)
         self.generate_report_btn.setCursor(Qt.PointingHandCursor)
         self.generate_report_btn.clicked.connect(self.generate_report)
         self.generate_report_btn.setEnabled(False)
@@ -233,10 +265,10 @@ class MainWindow(QMainWindow):
             QPushButton {
                 background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
                     stop:0 #10b981, stop:1 #059669);
-                color: white;
-                border-radius: 8px;
-                padding: 8px 20px;
-                font-size: 13px;
+                color: #ffffff;
+                border-radius: 6px;
+                padding: 6px 12px;
+                font-size: 11px;
                 font-weight: 600;
                 border: none;
             }
@@ -244,15 +276,24 @@ class MainWindow(QMainWindow):
                 background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
                     stop:0 #059669, stop:1 #047857);
             }
+            QPushButton:pressed {
+                background: #065f46;
+            }
             QPushButton:disabled {
-                background: #4b5563;
-                color: #9ca3af;
+                background: #475569;
+                color: #94a3b8;
             }
         """)
         upload_layout.addWidget(self.generate_report_btn)
 
         upload_layout.addStretch()
         content_layout.addWidget(controls_frame)
+
+        # Apply initial theme to dashboard elements
+        try:
+            self.apply_theme(self.theme)
+        except Exception:
+            pass
 
         # Tab widget - takes remaining space
         self.tabs = QTabWidget()
@@ -472,9 +513,73 @@ class MainWindow(QMainWindow):
         about_action.triggered.connect(self.show_about)
         help_menu.addAction(about_action)
 
+    def toggle_theme(self):
+        """Toggle between light and dark theme for desktop UI."""
+        self.theme = 'light' if getattr(self, 'theme', 'dark') == 'dark' else 'dark'
+        self.apply_theme(self.theme)
+        # propagate to pages/dialogs
+        try:
+            if hasattr(self, 'index_page') and hasattr(self.index_page, 'apply_theme'):
+                self.index_page.apply_theme(self.theme)
+        except Exception:
+            pass
+
+    def apply_theme(self, theme: str):
+        """Apply theme styles to major desktop UI elements."""
+        # Status bar
+        if theme == 'light':
+            self.status_bar.setStyleSheet("""
+                QStatusBar { background: #f8fafc; color: #0f172a; border-top: 1px solid rgba(15,23,42,0.06); padding:4px 8px; font-size:12px }
+            """)
+            # Header
+            self.header_frame.setStyleSheet("""
+                QFrame { background: #ffffff; border-radius:10px; border:1px solid rgba(15,23,42,0.06); }
+            """)
+            self.user_label.setStyleSheet("color:#0f172a; font-size:13px; padding:6px 12px; background: #f1f5f9; border-radius:6px;")
+            self.logout_btn.setStyleSheet("QPushButton{background:#ef4444;color:white;border-radius:6px;padding:6px 14px;font-weight:600} QPushButton:hover{background:#dc2626}")
+            # Upload / generate buttons
+            self.upload_btn.setStyleSheet("QPushButton{background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #3b82f6, stop:1 #2563eb); color:white; border-radius:8px; padding:8px 20px; font-weight:600} QPushButton:hover{opacity:0.95}")
+            self.generate_report_btn.setStyleSheet("QPushButton{background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #10b981, stop:1 #059669); color:white; border-radius:8px; padding:8px 20px;} QPushButton:disabled{background:#d1d5db;color:#9ca3af}")
+            # Tables
+            self.table_widget.setStyleSheet("QTableWidget{background: #ffffff; color:#0f172a; gridline-color: rgba(15,23,42,0.06)}")
+            self.history_table.setStyleSheet("QTableWidget{background:#ffffff;color:#0f172a}")
+        else:
+            # dark
+            self.status_bar.setStyleSheet("""
+                QStatusBar { background: rgba(15, 23, 42, 0.95); color: #e2e8f0; border-top: 1px solid rgba(148, 163, 184, 0.3); padding:4px 8px; font-size:12px }
+            """)
+            self.header_frame.setStyleSheet("""
+                QFrame { background: rgba(15, 23, 42, 0.8); border-radius: 10px; border: 1px solid rgba(148, 163, 184, 0.2); }
+            """)
+            self.user_label.setStyleSheet("color: #cbd5e1; font-size:13px; padding:6px 12px; background: rgba(30,41,59,0.6); border-radius:6px;")
+            self.logout_btn.setStyleSheet("""
+                QPushButton { background: #ef4444; color:white; border-radius:6px; padding:6px 14px; font-size:13px; font-weight:600; border:none }
+                QPushButton:hover{ background:#dc2626 }
+            """)
+            self.upload_btn.setStyleSheet("""
+                QPushButton { background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #3b82f6, stop:1 #2563eb); color: white; border-radius: 8px; padding: 8px 20px; font-weight:600 }
+                QPushButton:hover{ background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #2563eb, stop:1 #1d4ed8); }
+            """)
+            self.generate_report_btn.setStyleSheet("""
+                QPushButton { background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #10b981, stop:1 #059669); color:white; border-radius:8px; padding:8px 20px }
+                QPushButton:disabled{ background:#4b5563; color:#9ca3af }
+            """)
+            # Tables - revert
+            self.table_widget.setStyleSheet("""
+                QTableWidget { background: rgba(15, 23, 42, 0.95); color: #e2e8f0; }
+            """)
+            self.history_table.setStyleSheet("""
+                QTableWidget { background: rgba(15, 23, 42, 0.95); color: #e2e8f0; }
+            """)
+
+
     def show_login(self):
         """Show login dialog"""
         dialog = LoginDialog(self.api_client, self, start_with_register=False)
+        try:
+            dialog.apply_theme(self.theme)
+        except Exception:
+            pass
         if dialog.exec_():
             user = dialog.user_data
             if user:

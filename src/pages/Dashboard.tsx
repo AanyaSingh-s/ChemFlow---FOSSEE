@@ -11,7 +11,7 @@ import { Charts } from "@/components/Charts";
 import { EquipmentTable } from "@/components/EquipmentTable";
 import { calculateStats } from "@/utils/statsCalculator";
 import { useUploadHistory } from "@/contexts/UploadHistoryContext";
-import Iridescence from "@/components/Iridescence";
+// import Iridescence from "@/components/Iridescence";
 import { datasetAPI, authAPI } from "@/services/api";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -115,9 +115,9 @@ const Dashboard = () => {
 
   return (
     <div className="relative">
-      <div className="fixed inset-0 -z-10 opacity-90">
+      {/* <div className="fixed inset-0 -z-10 opacity-90">
         <Iridescence color={[0.4, 0.7, 0.9]} speed={0.4} amplitude={0.18} />
-      </div>
+      </div> */}
       <DashboardLayout
         sidebar={<DashboardSidebar />}
         title="Dashboard"

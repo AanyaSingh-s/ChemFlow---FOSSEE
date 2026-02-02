@@ -12,33 +12,39 @@ class StatCard(QFrame):
     def __init__(self, title, value, icon="", color="#3b82f6"):
         super().__init__()
         darker = self.darken_color(color)
+        self.color = color
+        self.title_text = title
+        self.value_text = value
+        self.icon_text = icon
+        
         self.setStyleSheet(f"""
             StatCard {{
                 background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
                     stop:0 {color}, 
                     stop:1 {darker});
-                border-radius: 10px;
-                border: 1px solid rgba(255, 255, 255, 0.15);
+                border-radius: 12px;
+                border: none;
             }}
         """)
         
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(16, 14, 16, 14)
-        layout.setSpacing(6)
+        layout.setContentsMargins(20, 16, 20, 16)
+        layout.setSpacing(8)
         
         # Icon + Title row
         header_layout = QHBoxLayout()
-        header_layout.setSpacing(8)
+        header_layout.setSpacing(10)
+        header_layout.setContentsMargins(0, 0, 0, 0)
         
         if icon:
             icon_label = QLabel(icon)
-            icon_label.setStyleSheet("color: rgba(255, 255, 255, 0.9); font-size: 20px; background: transparent;")
+            icon_label.setStyleSheet("color: rgba(255, 255, 255, 0.95); font-size: 22px; background: transparent;")
             header_layout.addWidget(icon_label)
         
         title_label = QLabel(title)
         title_label.setStyleSheet("""
-            color: rgba(255, 255, 255, 0.9); 
-            font-size: 12px; 
+            color: rgba(255, 255, 255, 0.95); 
+            font-size: 13px; 
             font-weight: 600;
             background: transparent;
         """)
@@ -50,22 +56,41 @@ class StatCard(QFrame):
         # Value
         value_label = QLabel(str(value))
         value_font = QFont()
-        value_font.setPointSize(24)
+        value_font.setPointSize(20)
         value_font.setBold(True)
         value_label.setFont(value_font)
         value_label.setStyleSheet("color: white; background: transparent;")
         layout.addWidget(value_label)
         
-        self.setMinimumHeight(90)
-        self.setMaximumHeight(100)
+        self.setMinimumHeight(100)
+        self.setMaximumHeight(120)
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
     
     def darken_color(self, color):
         """Darken a hex color for gradient effect"""
         color = color.lstrip('#')
         rgb = tuple(int(color[i:i+2], 16) for i in (0, 2, 4))
-        darkened = tuple(max(0, c - 40) for c in rgb)
+        darkened = tuple(max(0, c - 50) for c in rgb)
         return f"#{darkened[0]:02x}{darkened[1]:02x}{darkened[2]:02x}"
+    
+    def apply_theme(self, theme: str):
+        """Apply theme to stat card"""
+        if theme == 'light':
+            # Light theme - different gradient
+            light_color = "#f0f9ff"
+            self.setStyleSheet(f"""
+                StatCard {{
+                    background: {light_color};
+                    border-radius: 12px;
+                    border: 1px solid #e0e7ff;
+                }}
+            """)
+            # Update text colors
+            for child in self.findChildren(QLabel):
+                if child.text() == self.title_text:
+                    child.setStyleSheet("color: #0f172a; font-size:13px; font-weight:600; background:transparent;")
+                else:
+                    child.setStyleSheet("color: #1e40af; font-weight:bold; background:transparent;")
 
 
 class StatsWidget(QWidget):
@@ -87,24 +112,24 @@ class StatsWidget(QWidget):
         title_frame = QFrame()
         title_frame.setStyleSheet("""
             QFrame {
-                background: rgba(30, 41, 59, 0.7);
-                border-radius: 8px;
+                background: transparent;
             }
         """)
         title_layout = QVBoxLayout(title_frame)
-        title_layout.setContentsMargins(16, 12, 16, 12)
+        title_layout.setContentsMargins(0, 0, 0, 0)
         title_layout.setSpacing(4)
         
-        title = QLabel("📊 Summary Statistics")
+        title = QLabel("Overview")
         title_font = QFont()
-        title_font.setPointSize(16)
+        title_font.setPointSize(14)
+        title_font.setBold(True)
         title_font.setBold(True)
         title.setFont(title_font)
         title.setStyleSheet("color: white; background: transparent;")
         title_layout.addWidget(title)
         
         subtitle = QLabel("Overview of your dataset metrics")
-        subtitle.setStyleSheet("color: #94a3b8; font-size: 12px; background: transparent;")
+        subtitle.setStyleSheet("color: #94a3b8; font-size: 10px; background: transparent;")
         title_layout.addWidget(subtitle)
         
         self.main_layout.addWidget(title_frame)
@@ -214,7 +239,7 @@ class StatsWidget(QWidget):
                 font-weight: bold; 
                 color: #3b82f6;
                 padding: 6px 4px;
-                font-size: 11px;
+                font-size: 10px;
                 background: transparent;
             """)
             label.setAlignment(Qt.AlignCenter if j > 0 else Qt.AlignLeft)

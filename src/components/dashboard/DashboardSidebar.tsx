@@ -15,11 +15,35 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUploadHistory } from "@/contexts/UploadHistoryContext";
-import { FlaskConical, History, LayoutDashboard, LogOut, PauseCircle, Upload } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { useTheme } from "@/components/theme-provider";
+import { useNavigate } from "react-router-dom";
+import { FlaskConical, History, LayoutDashboard, LogOut, PauseCircle, Upload, Sun, Moon } from "lucide-react";
 
 const DashboardSidebar = () => {
   const { user, logout } = useAuth();
   const { history, paused, togglePause } = useUploadHistory();
+  const { toast } = useToast();
+  const { theme, setTheme } = useTheme();
+  const navigate = useNavigate();
+
+  const handleSignOut = () => {
+    logout();
+    try {
+      localStorage.removeItem("user");
+      localStorage.removeItem("token");
+    } catch (e) {
+      // ignore
+    }
+    toast({ title: "Signed out", description: "You have been signed out." });
+    navigate("/login");
+  };
+
+  const handleToggleTheme = () => {
+    const next = theme === "dark" ? "light" : "dark";
+    setTheme(next);
+    toast({ title: `Theme: ${next[0].toUpperCase() + next.slice(1)}` });
+  };
 
   return (
     <>
@@ -101,10 +125,16 @@ const DashboardSidebar = () => {
             <span className="text-xs text-muted-foreground">Logged in</span>
           </div>
         </div>
-        <Button variant="ghost" className="justify-start gap-2" onClick={logout}>
-          <LogOut className="h-4 w-4" />
-          Sign out
-        </Button>
+        <div className="flex flex-col gap-2">
+          <Button variant="ghost" className="justify-start gap-2" onClick={handleToggleTheme} title={`Toggle theme (current: ${theme})`} aria-label="Toggle theme">
+            {theme === "dark" ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+            Toggle theme
+          </Button>
+          <Button variant="ghost" className="justify-start gap-2" onClick={handleSignOut}>
+            <LogOut className="h-4 w-4" />
+            Sign out
+          </Button>
+        </div>
       </SidebarFooter>
     </>
   );
